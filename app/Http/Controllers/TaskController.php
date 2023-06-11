@@ -26,7 +26,7 @@ class TaskController extends Controller
         
         $user_id = auth('user-api')->user()->id;
         $tasks = DB::table('users')->join('tasks', 'tasks.user_id', "=", 'users.id')
-            ->select('tasks.prioirty')->orderBy('tasks.start_date', 'desc')
+            ->select('tasks.prioirty','tasks.status' , 'tasks.task_body' )->orderBy('tasks.start_date', 'desc')
             ->where('users.id', $user_id)->get();
 
         return  $this->success($tasks, 200);
@@ -49,6 +49,7 @@ class TaskController extends Controller
             $task  =  DB::table('tasks')->where('id', $task_id)->get();
             return  $this->success($task, 200);
         } catch (\Exception $e) {
+      
             return $this->error('there is something went wrong!', 302);
         }
     }
@@ -65,12 +66,16 @@ class TaskController extends Controller
             // $request->request->add(['user_id' => $user_id]);
 
             DB::table('tasks')->join('users', 'tasks.user_id', "=", 'users.id')->where('tasks.id', '=', $id)
-                ->update($request->all());
+                ->update($request->except('id'));
 
-            $task =  DB::table('tasks')->join('users', 'tasks.user_id', "=", 'users.id')->where('tasks.id', '=', $id)
-                ->select('tasks.*')->get();
+            $task = DB::table('tasks')->join('users', 'tasks.user_id', "=", 'users.id')
+                   ->where('tasks.id', '=', $id)
+                   ->select('tasks.*')->get();
+
             return $this->success(' task updated successfully', 200);
         } catch (\Exception $e) {
+        
+            
             return $this->error('update task faild , please try again', 302);
         }
     }
@@ -89,42 +94,43 @@ class TaskController extends Controller
 
 
 
-    public function changeStatu($id, Request $request)
+    public function changeStatus($id, Request $request)
     {
 
         $task =  DB::table('tasks')->where('id', $id);
         try {
             $errors =  $request->validate([
                 'status'  => ['required', Rule::in(['completed', 'in progress', 'not started yet'])]
-            ], $request->status);
+            ], [$request->status]);
 
 
             if ($errors || !$task) {
-                return $this->error('some thing went wrong, please try again later!', 200);
+                return $this->error($errors, 302);
             }
 
-            DB::table('tasks')->where('id', $id)->update($request->status);
+            DB::table('tasks')->where('id', $id)->update(['status' => $request->status]);
             return $this->success(' task updated successfully', 200);
         } catch (\Exception $ex) {
-
+            // return $ex->getMessage();
+ 
             return $this->error('update task faild , please try again', 302);
         }
     }
-    public function changePriority($id, Request $request)
+    public function changePriority($id, TaskRequest $request)
     {
 
         $task =  DB::table('tasks')->where('id', $id);
         try {
             $errors =  $request->validate([
                 'prioirty'  => ['required', Rule::in(['high', 'mid', 'low'])]
-            ], $request->prioirty);
+            ],[ $request->prioirty]);
 
 
             if ($errors || !$task) {
                 return $this->error('some thing went wrong, please try again later!', 200);
             }
 
-            DB::table('tasks')->where('id', $id)->update($request->prioirty);
+            DB::table('tasks')->where('id', $id)->update([ 'prioirty' =>  $request->prioirty]);
             return $this->success(' task updated successfully', 200);
         } catch (\Exception $ex) {
 
@@ -141,8 +147,9 @@ class TaskController extends Controller
     {
         try {
             $user_id  = Auth::user()->id;
-            DB::table('tasks')->join('users' , 'tasks.user_id', "=", 'users.id' )->where('status' , "="  , 'completed')
-            ->where('users.id' , '=' , $$user_id)
+            DB::table('tasks')->join('users' , 'tasks.user_id', "=", 'users.id' )
+            ->where('status' , "="  , 'completed')
+            ->where('users.id' , '=' , $user_id)
             ->delete();
             return $this->success(' completed task deleted successfully', 200);
 

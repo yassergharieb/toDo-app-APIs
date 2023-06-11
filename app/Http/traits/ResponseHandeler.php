@@ -27,7 +27,7 @@ trait ResponseHandeler {
     throw new HttpResponseException(response()->json([
         'status' => 'error',
         'message' => 'The given data was invalid.',
-        'errors' => $validator->errors(),
+        'errors' => $validator->errors()->toArray(),
     ], 400));
 }
  }

@@ -19,7 +19,7 @@ return new class extends Migration
            
             $table->Text('task_body');
             $table->enum('status' , ['in progress' , 'not started yet' , 'completed' ]);
-            $table->enum('prioirty' , ['high' , 'mid' , 'low' ]); // set gate and policy do change just has in progress or not started yet
+            $table->enum('prioirty' , ['high' , 'mid' , 'low' ]);
 
             $table->timestamp('start_date')->nullable();
             $table->timestamp('end_date')->nullable();

@@ -40,6 +40,7 @@ Route::controller(TaskController::class )->prefix('task')->group(function() {
     Route::delete('delete' , 'destroy');
     Route::patch('changeStatus/{id}' , 'changeStatus');
     Route::patch('changePriority/{id}' , 'changePriority');
+    Route::delete('deleteCompleteTasks',  'deleteCompleteTasks');
 
 });
 

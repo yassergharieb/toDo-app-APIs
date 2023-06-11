@@ -27,19 +27,20 @@ class TaskRequest extends FormRequest
     public function rules()
     {
         $task_request = $this;
-        $user_id =  Auth::user()->id;
+        // $user_id =  Auth::user()->id;
         
         // $this->merge(['user_id' =>$user_id]);
         return [
 
-         
+            'id'        =>  "nullable|exists:tasks,id",
             'task_body' => "required_without:id|max:500",
             'status'    => ['required_without:id', Rule::in(['in progress', 'completed', 'not started yet'])],
             'prioirty'  => ['required_without:id', Rule::in(['high', 'mid', 'low'])],
             'start_date' => $this->BasicDateValidationForTasks($task_request),
             'end_date'  =>  $this->BasicDateValidationForTasks($task_request),
-            // 'user_id'   => 'required|exists:users,id',
-            'id'        =>  "nullable|exists:tasks,id",
+            'user_id'   => 'required|exists:users,id',
+          
+        
 
 
 
